@@ -6,6 +6,7 @@ namespace RobotMovement
 {
     class Program
     {
+        private readonly RobotPlacement roboPlacement;
         static void Main(string[] args)
         {
             var quit = false; //Flag to exit the application
@@ -15,18 +16,25 @@ namespace RobotMovement
             var indexCounter = 0;
             var xAxis = 0;
             var yAxis = 0;
-            var moveAlongX = false;
+            bool moveAlongX = false;
             var command = "";
+            MovementDetails currentDetails = new MovementDetails
+            {
+                xAxis = xAxis,
+                yAxis = yAxis,
+                indexCounter = indexCounter,
+                movementValue = movementValue,
+                moveAlongX = moveAlongX
+            };
 
             Console.WriteLine("Hello! Please enter a PLACE command to place the robot and get started. You may also enter QUIT at anytime to stop the application");
             while (!quit)
             {
                 while (movementValue == 0)
                 {
-                    Console.WriteLine();
-                    Console.Write("Please place the robot (PLACE command): ");
+                    Console.Write("\nPlease place the robot (PLACE command): ");
                     command = Console.ReadLine();
-                    verifyPlacement(command);
+                    updateDetails(RobotPlacement.VerifyPlacement(command, directionList, movementList, currentDetails));
                 }
 
                 Console.WriteLine();
@@ -35,7 +43,7 @@ namespace RobotMovement
                 switch (command)
                 {
                     case string c when command.StartsWith("PLACE"): //Since PLACE command comes with parameters, just check for the word first
-                        verifyPlacement(command);
+                        updateDetails(RobotPlacement.VerifyPlacement(command, directionList, movementList, currentDetails));
                         break;
                     case "MOVE":
                         if (moveAlongX)
@@ -73,50 +81,24 @@ namespace RobotMovement
                         Console.WriteLine("Error: Invalid command. Please enter (in uppercase) either MOVE, LEFT, RIGHT, REPORT, or PLACE with the appropriate parameters. You may also enter QUIT to stop the application.");
                         break;
                 }
+            }
 
-                void verifyPlacement(string input)
-                {
-                    var inputStrings = input.Split(' ');
-                    if (inputStrings.Length == 2 && inputStrings[0] == "PLACE")
-                    {
-                        var options = inputStrings[1].Split(',');
-                        if (!(options.Length == 3))
-                        {
-                            Console.WriteLine("Error placing robot: Invalid 'PLACE' command. Please use all upper case, have a space between the word 'PLACE' and the parameters, and have no spaces in the parameters. Example: PLACE 0,0,NORTH");
-                            return;
-                        }
+            void updateDetails(MovementDetails details)
+            {
+                xAxis = details.xAxis;
+                yAxis = details.yAxis;
+                indexCounter = details.indexCounter;
+                movementValue = details.movementValue;
+                moveAlongX = details.moveAlongX;
 
-                        if (!(Int32.TryParse(options[0], out int x) && Int32.TryParse(options[1], out int y)))
-                        {
-                            Console.WriteLine("Error placing robot: Please use whole numbers for the coordinate values.");
-                            return;
-                        }
-
-                        if (!(x >= 0 && x <= 4 && y >= 0 && y <= 4))
-                        {
-                            Console.WriteLine("Error placing robot: Please provide coordinate values between 0 and 4.");
-                            return;
-                        }
-
-                        if (!(Array.Exists(directionList, d => d == options[2])))
-                        {
-                            Console.WriteLine("Error placing robot: Please ensure orientation is one of NORTH, EAST, SOUTH, WEST (all upper case).");
-                            return;
-                        }
-
-                        xAxis = x;
-                        yAxis = y;
-                        indexCounter = Array.IndexOf(directionList, options[2]);
-                        movementValue = movementList[indexCounter];
-                        moveAlongX = indexCounter % 2 == 0 ? false : true;
-                        Console.WriteLine("Robot has been placed!");
-
-                        return;
-                    }
-                    Console.WriteLine("Error placing robot: Invalid 'PLACE' command. Please use all upper case and have a space between the word 'PLACE' and the parameters, but have no spaces between the parameters themselves. Example: PLACE 0,0,NORTH");
-                }
+                currentDetails.xAxis = details.xAxis;
+                currentDetails.yAxis = details.yAxis;
+                currentDetails.indexCounter = details.indexCounter;
+                currentDetails.movementValue = details.movementValue;
+                currentDetails.moveAlongX = details.moveAlongX;
             }
         }
+
     }
 }
 
