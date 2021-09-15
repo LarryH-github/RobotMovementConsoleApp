@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.ComponentModel.DataAnnotations;
 
 namespace RobotMovement
 {
     class RobotPlacement
     {
-        public static MovementDetails VerifyPlacement(string input, string[] directionList, int[] movementList, MovementDetails oldDetails)
+        public static Robot VerifyPlacement(string input, int[] movementList, Robot oldDetails)
         {
             var inputStrings = input.Split(' ');
             if (inputStrings.Length == 2 && inputStrings[0] == "PLACE")
@@ -17,37 +18,30 @@ namespace RobotMovement
                     Console.WriteLine("Error placing robot: Invalid 'PLACE' command. Please use all upper case, have a space between the word 'PLACE' and the parameters, and have no spaces in the parameters. Example: PLACE 0,0,NORTH");
                     return oldDetails;
                 }
-
                 if (!(Int32.TryParse(options[0], out int x) && Int32.TryParse(options[1], out int y)))
                 {
                     Console.WriteLine("Error placing robot: Please use whole numbers for the coordinate values.");
                     return oldDetails;
                 }
-
                 if (!(x >= 0 && x <= 4 && y >= 0 && y <= 4))
                 {
                     Console.WriteLine("Error placing robot: Please provide coordinate values between 0 and 4.");
                     return oldDetails;
                 }
-
-                if (!(Array.Exists(directionList, d => d == options[2])))
+                if (!(Enum.IsDefined(typeof(Enums.DirectionList), options[2])))
                 {
                     Console.WriteLine("Error placing robot: Please ensure orientation is one of NORTH, EAST, SOUTH, WEST (all upper case).");
                     return oldDetails;
                 }
 
-                //xAxis = x;
-                //yAxis = y;
-                var counter = Array.IndexOf(directionList, options[2]);
-                //movementValue = movementList[indexCounter];
-                //moveAlongX = indexCounter % 2 == 0 ? false : true;
-                MovementDetails newDetails = new MovementDetails
+                var counter = (int)Enum.Parse(typeof(Enums.DirectionList), options[2]);
+                Robot newDetails = new Robot
                 {
-                    xAxis = x,
-                    yAxis = y,
-                    indexCounter = counter,
-                    movementValue = movementList[counter],
-                    moveAlongX = counter % 2 == 0
+                    XAxis = x,
+                    YAxis = y,
+                    IndexCounter = counter,
+                    MovementValue = movementList[counter],
+                    MoveAlongX = counter % 2 != 0
                 };
                 Console.WriteLine("Robot has been placed!");
 
@@ -58,12 +52,17 @@ namespace RobotMovement
         }
     }
 
-    public class MovementDetails
-    {
-        public int xAxis { get; set; }
-        public int yAxis { get; set; }
-        public int indexCounter { get; set; }
-        public int movementValue { get; set; }
-        public bool moveAlongX { get; set; }
-    }
+    //public class Robot
+    //{
+    //    [Required]
+    //    public int XAxis { get; set; }
+    //    [Required]
+    //    public int YAxis { get; set; }
+    //    [Required]
+    //    public int IndexCounter { get; set; }
+    //    [Required]
+    //    public int MovementValue { get; set; }
+    //    [Required]
+    //    public bool MoveAlongX { get; set; }
+    //}
 }

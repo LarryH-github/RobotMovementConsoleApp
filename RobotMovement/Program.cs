@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 /*** Test data found after all the code (at the bottom) ***/
 
@@ -6,35 +8,29 @@ namespace RobotMovement
 {
     class Program
     {
-        private readonly RobotPlacement roboPlacement;
         static void Main(string[] args)
         {
             var quit = false; //Flag to exit the application
-            var directionList = new string[] { "NORTH", "EAST", "SOUTH", "WEST" };
+            var directionListLength = Enum.GetNames(typeof(Enums.DirectionList)).Length;
             var movementList = new int[] { 1, 1, -1, -1 };
-            var movementValue = 0; //This will change to be one of the values in movementList after robot is successfully placed at the start of the application
-            var indexCounter = 0;
-            var xAxis = 0;
-            var yAxis = 0;
-            bool moveAlongX = false;
-            var command = "";
-            MovementDetails currentDetails = new MovementDetails
+            Robot robot = new Robot
             {
-                xAxis = xAxis,
-                yAxis = yAxis,
-                indexCounter = indexCounter,
-                movementValue = movementValue,
-                moveAlongX = moveAlongX
+                XAxis = 0,
+                YAxis = 0,
+                IndexCounter = 0,
+                MovementValue = 0, //This will change to be one of the values in movementList after robot is successfully placed at the start of the application
+                MoveAlongX = false
             };
 
             Console.WriteLine("Hello! Please enter a PLACE command to place the robot and get started. You may also enter QUIT at anytime to stop the application");
             while (!quit)
             {
-                while (movementValue == 0)
+                string command;
+                while (robot.MovementValue == 0)
                 {
                     Console.Write("\nPlease place the robot (PLACE command): ");
                     command = Console.ReadLine();
-                    updateDetails(RobotPlacement.VerifyPlacement(command, directionList, movementList, currentDetails));
+                    updateDetails(RobotPlacement.VerifyPlacement(command, movementList, robot));
                 }
 
                 Console.WriteLine();
@@ -43,36 +39,36 @@ namespace RobotMovement
                 switch (command)
                 {
                     case string c when command.StartsWith("PLACE"): //Since PLACE command comes with parameters, just check for the word first
-                        updateDetails(RobotPlacement.VerifyPlacement(command, directionList, movementList, currentDetails));
+                        updateDetails(RobotPlacement.VerifyPlacement(command, movementList, robot));
                         break;
                     case "MOVE":
-                        if (moveAlongX)
+                        if (robot.MoveAlongX)
                         {
-                            if ((xAxis > 0 && movementValue < 0) || (xAxis < 4 && movementValue > 0))
+                            if ((robot.XAxis > 0 && robot.MovementValue < 0) || (robot.XAxis < 4 && robot.MovementValue > 0))
                             {
-                                xAxis += movementValue;
+                                robot.XAxis += robot.MovementValue;
                             }
                         }
                         else
                         {
-                            if ((yAxis > 0 && movementValue < 0) || (yAxis < 4 && movementValue > 0))
+                            if ((robot.YAxis > 0 && robot.MovementValue < 0) || (robot.YAxis < 4 && robot.MovementValue > 0))
                             {
-                                yAxis += movementValue;
+                                robot.YAxis += robot.MovementValue;
                             }
                         }
                         break;
                     case "LEFT":
-                        indexCounter = indexCounter == 0 ? directionList.Length-1 : indexCounter-1;
-                        movementValue = movementList[indexCounter];
-                        moveAlongX = !moveAlongX;
+                        robot.IndexCounter = robot.IndexCounter == 0 ? directionListLength-1 : robot.IndexCounter -1;
+                        robot.MovementValue = movementList[robot.IndexCounter];
+                        robot.MoveAlongX = !robot.MoveAlongX;
                         break;
                     case "RIGHT":
-                        indexCounter = indexCounter == directionList.Length-1 ? 0 : indexCounter+1;
-                        movementValue = movementList[indexCounter];
-                        moveAlongX = !moveAlongX;
+                        robot.IndexCounter = robot.IndexCounter == directionListLength-1 ? 0 : robot.IndexCounter +1;
+                        robot.MovementValue = movementList[robot.IndexCounter];
+                        robot.MoveAlongX = !robot.MoveAlongX;
                         break;
                     case "REPORT":
-                        Console.WriteLine($"{xAxis},{yAxis},{directionList[indexCounter]}");
+                        Console.WriteLine($"{robot.XAxis},{robot.YAxis},{(Enums.DirectionList)robot.IndexCounter}");
                         break;
                     case "QUIT":
                         quit = true;
@@ -83,19 +79,13 @@ namespace RobotMovement
                 }
             }
 
-            void updateDetails(MovementDetails details)
+            void updateDetails(Robot details)
             {
-                xAxis = details.xAxis;
-                yAxis = details.yAxis;
-                indexCounter = details.indexCounter;
-                movementValue = details.movementValue;
-                moveAlongX = details.moveAlongX;
-
-                currentDetails.xAxis = details.xAxis;
-                currentDetails.yAxis = details.yAxis;
-                currentDetails.indexCounter = details.indexCounter;
-                currentDetails.movementValue = details.movementValue;
-                currentDetails.moveAlongX = details.moveAlongX;
+                robot.XAxis = details.XAxis;
+                robot.YAxis = details.YAxis;
+                robot.IndexCounter = details.IndexCounter;
+                robot.MovementValue = details.MovementValue;
+                robot.MoveAlongX = details.MoveAlongX;
             }
         }
 
