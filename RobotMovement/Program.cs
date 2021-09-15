@@ -19,7 +19,7 @@ namespace RobotMovement
                 YAxis = 0,
                 IndexCounter = 0,
                 MovementValue = 0, //This will change to be one of the values in movementList after robot is successfully placed at the start of the application
-                MoveAlongsX = false
+                MoveAlongX = false
             };
 
             Console.WriteLine("Hello! Please enter a PLACE command to place the robot and get started. You may also enter QUIT at anytime to stop the application");
